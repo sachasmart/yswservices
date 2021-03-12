@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+    <link rel="stylesheet" href="css/qgis2web.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="css/MarkerCluster.css">
+    <link rel="stylesheet" href="css/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Oswald" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="../js/jquery.stickytableheaders.js"></script>
+
+
+    <style>
+        #map {
+            width: 80%;
+            height: 50em;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 1000px;
+            max-height: 30%;
+            padding: 20px;
+            margin-top: 20px;
+
+        }
+
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="html-table-search.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('table.search-table').tableSearch({
+                searchText: 'Search Table',
+                searchPlaceHolder: 'Input Value'
+            });
+        });
+
+    </script>
+    <title></title>
+
+</head>
+
+<style>
+    div.header {
+        background-color: ;
+        padding: 20px;
+    }
+
+    @media screen and (min-width: 601px) {
+        div.header {
+            font-size: 400px;
+        }
+    }
+
+    @media screen and (max-width: 600px) {
+        div.header {
+            font-size: 30px;
+        }
+    }
+
+</style>
+
+<nav>
+    <div class="nav-bg"></div>
+    <ul>
+        <li>
+            <p style="color: white; padding-bottom: 10px; margin-bottom: 10px; ">Contact Information</p>
+        </li>
+        <li><a href="tel:416-656-6526"><i class="fa fa-phone" style="font-size:2em; color: #f1f1f2;" aria-hidden="true"></i></a></li>
+        <li><a href="mailto:ahmed.hussen@parl.gc.ca"><i class="fas fa-envelope" style="font-size:2em; color: #f1f1f2 ;"></i></a></li>
+    </ul>
+</nav>
+<header class="header" style="text-align: left; margin-left: auto; ; margin-right: auto; display: block; position: relative; color: white; background-color: #d71920;">
+    <div style="padding: 10px; margin:0vw 5vw  0vw 5vw;">
+        <p><strong>Hon. Ahmed Hussen</strong></p>
+        <p class="h2" style="margin: 0px; font-size:; font-size-adjust:  float: inherit; display: inline-block;">York South-Weston</p>
+    </div>
+</header>
+<script>
+    $(document).scroll(function() {
+        navbarScroll();
+    });
+
+    function navbarScroll() {
+        var y = window.scrollY;
+        if (y > 10) {
+            $('.header').addClass('small');
+        } else if (y < 10) {
+            $('.header').removeClass('small');
+        }
+    }
+
+</script>
+
+<header style="text-align: center; width: 100%; font-size: 30px; margin: auto; display: block; max-height: 40; font: white; padding:10px; font-family: Oswald; color: white; background: #3d4f5d; ">
+
+    <a href="https://www.canada.ca/en/public-health/services/diseases/coronavirus-disease-covid-19.html?utm_campaign=not-applicable&utm_medium=vanity-url&utm_source=canada-ca_coronavirus" style="color: white;">Latest COVID-19 Updates</a>
+
+</header>
+
+<body style="font-family: Oswald;">
+
+    <div id="map">
+    </div>
+    <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/L.Control.Locate.min.js"></script>
+    <script src="js/leaflet-svg-shape-markers.min.js"></script>
+    <script src="js/leaflet.rotatedMarker.js"></script>
+    <script src="js/leaflet.pattern.js"></script>
+    <script src="js/leaflet-hash.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/rbush.min.js"></script>
+    <script src="js/labelgun.min.js"></script>
+    <script src="js/labels.js"></script>
+    <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+    <script src="js/leaflet.markercluster.js"></script>
+    <script src="data/success4_1.js"></script>
+    <script>
+        var map = L.map('map', {
+            zoomControl: true,
+            maxZoom: 16,
+            minZoom: 1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('Developed by the Office of Hon. Ahmed Hussen');
+        var autolinker = new Autolinker({
+            truncate: {
+                length: 30,
+                location: 'smart'
+            }
+        });
+        L.control.locate({
+            locateOptions: {
+                maxZoom: 19
+            }
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_GoogleMaps_0');
+        map.getPane('pane_GoogleMaps_0').style.zIndex = 400;
+        var layer_GoogleMaps_0 = L.tileLayer('http://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleMaps_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 16,
+            minNativeZoom: 0,
+            maxNativeZoom: 22
+        });
+        layer_GoogleMaps_0;
+        map.addLayer(layer_GoogleMaps_0);
+
+        function pop_success4_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Name</th>\
+                        <td>' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Services Offered</th>\
+                        <td>' + (feature.properties['Services O'] !== null ? autolinker.link(feature.properties['Services O'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Contact Information</th>\
+                        <td>' + (feature.properties['Contact In'] !== null ? autolinker.link(feature.properties['Contact In'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Hours</th>\
+                        <td>' + (feature.properties['Hours'] !== null ? autolinker.link(feature.properties['Hours'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Address</th>\
+                        <td>' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {
+                maxHeight: 400
+            });
+        }
+
+        function style_success4_1_0() {
+            return {
+                pane: 'pane_success4_1',
+                shape: 'triangle',
+                radius: 8.0,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_success4_1');
+        map.getPane('pane_success4_1').style.zIndex = 401;
+        map.getPane('pane_success4_1').style['mix-blend-mode'] = 'normal';
+        var layer_success4_1 = new L.geoJson(json_success4_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_success4_1',
+            layerName: 'layer_success4_1',
+            pane: 'pane_success4_1',
+            onEachFeature: pop_success4_1,
+            pointToLayer: function(feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_success4_1_0(feature));
+            },
+        });
+        var cluster_success4_1 = new L.MarkerClusterGroup({
+            showCoverageOnHover: false,
+            spiderfyDistanceMultiplier: 2
+        });
+        cluster_success4_1.addLayer(layer_success4_1);
+
+        bounds_group.addLayer(layer_success4_1);
+        cluster_success4_1.addTo(map);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+            .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+            .title += 'Search for a place';
+        setBounds();
+
+    </script>
+    <div style="
+                
+            ">
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
+
+            .header {
+                background-color: lightgrey;
+                padding: 20px;
+            }
+
+            @media screen and (min-width: 761px) {
+                .header {
+                    font-size: 80px;
+                    margin-left: 3vw;
+                }
+            }
+
+            @media screen and (max-width: 760px) {
+                .header {
+                    font-size: 30px;
+                }
+            }
+
+            div.header {
+                background-color: ;
+                padding: 20px;
+            }
+
+            @media screen and (min-width: 601px) {
+                div.header {
+                    font-size: 80px;
+                }
+            }
+
+            @media screen and (max-width: 600px) {
+                div.header {
+                    font-size: 30px;
+                }
+            }
+
+            div.header {
+                background-color: ;
+                padding: 20px;
+            }
+
+            @media screen and (min-width: 601px) {
+                div.header {
+                    font-size: 400%;
+                }
+            }
+
+            @media screen and (max-width: 600px) {
+                div.header {
+                    font-size: 10vw;
+                }
+            }
+
+
+
+
+            nav {
+                position: fixed;
+                background: #d71920;
+                z-index: 9999;
+                margin: 0px;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 35px;
+
+            }
+
+            nav ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                float: right;
+            }
+
+            nav ul li {
+                display: inline-block;
+                margin: 0;
+                padding-right: .7em;
+            }
+
+            nav a {
+                width: 100%;
+                height: 100%;
+                color: white;
+                text-decoration: none;
+                font-family: Ubuntu;
+                font-size: 1.15em;
+                font-weight: lighter;
+                letter-spacing: 1px;
+                transition: .25s ease-in-out;
+            }
+
+            nav a:hover {
+                color: rgb(220, 120, 0);
+            }
+
+
+            h1 {
+                font-family: Oswald;
+                font-size: 40px;
+                padding: 0px;
+                margin: 0;
+
+
+            }
+
+            a:link {
+                color: black;
+                text-decoration: none;
+            }
+
+            a:hover {
+                color: red;
+                background-color: transparent;
+                text-decoration: underline;
+            }
+
+            .tableizer-table td {
+                padding: 4px;
+                margin: 3px;
+                border: 1px solid #CCC;
+            }
+
+            .tableizer-table th {
+                background-color: #d71920;
+                color: #FFF;
+                font-weight: bold;
+            }
+
+            #myTable {
+                border-collapse: collapse;
+                width: 100%;
+                border: 1px solid #ddd;
+                font-size: 18px;
+                table-layout: fixed;
+                text-decoration: none;
+                color: black;
+                -webkit-box-shadow: 0px 5px 20px 10px rgba(50, 50, 50, 0.25);
+                -moz-box-shadow: 0px 5px 20px 10px rgba(50, 50, 50, 0.25);
+                box-shadow: 0px 5px 20px 10px rgba(50, 50, 50, 0.25);
+            }
+
+            #myInput {
+                background-image: url('https://www.w3schools.com/css/searchicon.png');
+                background-position: 10px 10px;
+                background-repeat: no-repeat;
+                width: 60%;
+                font-size: 16px;
+                padding: 12px 20px 12px 40px;
+                border: 1px solid #ddd;
+                margin-bottom: 12px;
+                margin-top: 5px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+            }
+
+            #myTable tr.header,
+            #myTable tr:hover {
+                background-color: #f1f1f1;
+            }
+
+            tr:nth-of-type(odd) {
+                background: #f2f2f2;
+            }
+
+            th {
+                background: #E74C3C;
+                color: #fff;
+                font-weight: 600;
+                position: sticky;
+                top: 0;
+            }
+
+            td,
+            th {
+                padding: 12px;
+                border: 1px solid #ccc;
+                text-align: left;
+                text-align: center;
+                table-layout: fixed;
+            }
+
+            /*Mobile View*/
+            @media only screen and (max-width: 760px) {
+
+
+
+                td,
+                tr {
+                    display: block;
+                }
+
+                /* Hide table headers (but not display: none;, for accessibility) */
+                thead tr {
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                }
+
+                tr {
+                    border: 1px solid #414042;
+                }
+
+                tr+tr {
+                    margin-top: 1.5em;
+                }
+
+                td {
+                    /* make like a "row" */
+                    border: none;
+                    border-bottom: 1px solid #414042;
+                    position: relative;
+                    padding-left: 50%;
+                    background-color: #f1f1f2;
+                    text-align: left;
+                }
+
+                td:before {
+                    content: attr(data-label);
+                    display: inline-block;
+                    line-height: 1.5;
+                    margin-left: -100%;
+                    width: 100%;
+                    white-space: nowrap;
+                }
+
+        </style>
+        <script>
+            $(function() {
+                $("myTable").stickyTableHeaders(
+                    footer: true,
+                    cloneHeadToFoot: true,
+                    altClass: 'odd',
+                    autoShow: false
+                );
+            });
+
+        </script>
+        <script src="/path/to/jquery.freezeheader.js"></script>
+
+        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search... (e.g., meals, seniors)" title="Type in a service">
+        <table class="search-table" id="myTable" style=" width: 90%; max-width: 1200px;
+height: 600px;margin-left: auto ;margin-right: auto ; overflow-y: scroll; margin-top: 10px;height: 500px;display: block; table-layout: fixed;">
+            <thead>
+                <tr class="tableizer-firstrow">
+                    <th>Name</th>
+                    <th>Services Offered</th>
+                    <th>Contact Information</th>
+                    <th>Hours</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody style="text-decoration: none; color: black;">
+                <tr>
+                    <td data-label="Name">Frontlines</td>
+                    <td data-label="Services">Meals and groceries for families, online programming for youth</td>
+                    <td data-label="Contact"><a href="tel:(416) 244-7017">(416) 244-7017</a></td>
+                    <td data-label="Hours">Monday to Friday</td>
+                    <td data-label="Address">1844 Weston Road</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Volunteer Toronto</td>
+                    <td data-label="Services">Connecting volunteers to services</td>
+                    <td data-label="Contact"><a href="tel:(416) 961-6888">(416) 961-6888</a></br><strong><a href="https://www.emailmeform.com/builder/form/4s6b298OIYqDc">Complete Intake Form</a></strong></td>
+                    <td data-label="Hours">Monday to Friday</td>
+                    <td data-label="Address"><a href="https://www.volunteertoronto.ca/default.aspx">Website</a></td>
+                </tr>
+                <tr>
+                    <td data-label="Name">Syme Woolner Neighbourhood Centre</td>
+                    <td data-label="Services">
+                        Large nutritious take away meal available at 11am, Food Hamper Distribution, Housing Support Service, Harm Reduction Supply Kits, Food Bank, Syme 55+ Seniors Centre- Wellness check-ins
+                    </td>
+                    <td data-label="Contact"><a href="tel:(416) 766-4634">(416) 766-4634</a></td>
+                    <td data-label="Hours">
+                        7 days a week
+                    </td>
+                    <td data-label="Address">2486 Eglinton Ave West </td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Spark</td>
+                    <td data-label="Services">
+                        Connecting volunteers with community organizations across Ontario
+                    </td>
+                    <td data-label="Contact"><a href="tel:(416) 766-4634">Online</a></td>
+                    <td data-label="Hours">Visit <a href="http://www.sparkontario.ca/">Spark</a> for more information</td>
+                    <td data-label="Address"><a href="http://www.sparkontario.ca/">Spark</a></td>
+
+                </tr>
+                <!-- <tr>
+                    <td data-label="Name">Task Rabbit</td>
+                    <td data-label="Services">
+                        Get help from thousands of truted "Taskers" for everything from groceries to deliveries
+                    </td>
+                    <td data-label="Contact">Online</td>
+                    <td data-label="Hours">
+                        Visit <a href="https://www.taskrabbit.ca/ca/en/">Task Rabbit</a> for more information
+                    </td>
+                    <td data-label="Address"><a href="https://www.taskrabbit.ca/ca/en/">Task Rabbit</a></td>
+
+                </tr> -->
+
+                <tr>
+                    <td data-label="Name">CEE Centre for Young Black Professionals</td>
+                    <td data-label="Services">Mindfullness, mental health sessions, fitness workshops</td>
+                    <td data-label="Contact"><a href="tel:(416) 492-3000">(416) 492-3000</a></td>
+                    <td data-label="Hours">Services by appointment</td>
+                    <td data-label="Address">200 Consumers Road</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Community Place Hub</td>
+                    <td data-label="Services">Free lunches, community support, daily outreach to community members, warm-line support</td>
+                    <td data-label="Contact"><a href="tel:416-323-1429"> 416-323-1429</a> or <a href="mailto:thecommunityplacehub@gmail.com">email</a></td>
+                    <td data-label="Hours">Call for more information</td>
+                    <td data-label="Address">1765 Weston Road</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Unison Health and Community Services- Keele & Rogers Site</td>
+                    <td data-label="Services">Emergency Foodbank, House help, legal services, health clinic</td>
+                    <td data-label="Contact"><a href="tel:(416) 653-5400">(416) 653-5400</a></td>
+                    <td data-label="Hours">Monday to Friday 8:30-5:00</td>
+                    <td data-label="Address">1651 Keele Street</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Unison Health and Community Services 0- Jane St. Hub Site</td>
+                    <td data-label="Services">Health care clinic, harm reduction services</td>
+                    <td data-label="Contact"><a href="tel:(416) 645-7575">(416) 645-7575</a></td>
+                    <td data-label="Hours">Monday to Friday 8:30-5:00</td>
+                    <td data-label="Address">1541 Jane Street</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Unison Health and Community Services - Oakwood Vaughan Site</td>
+                    <td data-label="Services">Health care clinic, harm reduction services</td>
+                    <td data-label="Contact"><a href="tel:(647) 789-0441">(647) 789-0441</a></td>
+                    <td data-label="Hours">Wednesday: 1:00-8:00 Thursday 9:00-8:00</td>
+                    <td data-label="Address">501 Oakwood Avenue</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Macaulay Child Development Centre</td>
+                    <td data-label="Services">Social Work Services, family and child support services.</td>
+                    <td data-label="Contact"><a href="tel:(416) 789-7441">(416) 789-7441</a></td>
+                    <td data-label="Hours">Call for video conference information</td>
+                    <td data-label="Address">2010 Eglinton Avenue West</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Access Alliance</td>
+                    <td data-label="Services">Meals to go, online youth programming, active seniors program, personal development groups, care packages for seniors without Internet, income tax clinic, </td>
+                    <td data-label="Contact"><a href="tel:(416) 324-8677">(416) 324-8677</a></td>
+                    <td data-label="Hours">Call for program information</td>
+                    <td data-label="Address">761 Jane Street</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Avenue Road Food Bank</td>
+                    <td data-label="Services">Food bank pick up, emergency item pick-up</td>
+                    <td data-label="Contact"><a href="tel:(416) 922-4371">(416) 922-4371</a></td>
+                    <td data-label="Hours">Online</td>
+                    <td data-label="Address">240 Ave Road</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Davenport Perth Neighbourhood & Community Health Centre</td>
+                    <td data-label="Services">Two Take away dinners per week, crisis support via phone, mental health counselling via phone, harm reduction supplies</td>
+                    <td data-label="Contact"><a href="tel:(416) 656-8025">(416) 656-8025</a></td>
+                    <td data-label="Hours">Online</td>
+                    <td data-label="Address">1900 Davenport Road</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">North York Community House</td>
+                    <td data-label="Services">Social support programs, settelment programs, ESL Support</td>
+                    <td data-label="Contact"><a href="tel:(416) 784-0920">(416) 784-0920</a></td>
+                    <td data-label="Hours">Online</td>
+                    <td data-label="Address">255 Ranee Ave </td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">MIDAYNTA</td>
+                    <td data-label="Services">Remote counselling, general support, outreach workers connecting with youth</td>
+                    <td data-label="Contact"><a href="tel:(416) 544-1992">(416) 544-1992</a></td>
+                    <td data-label="Hours">Online</td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">COSTI - Employment Services Weston</td>
+                    <td data-label="Services">Employment and employer services. </td>
+                    <td data-label="Contact"><a href="tel:(416) 5880-2240">(416) 5880-2240</a></td>
+                    <td data-label="Hours">Online</td>
+                    <td data-label="Address">1885 Weston Road</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Culture Link</td>
+                    <td data-label="Services">Settlement Services, information and referral Services, health and employment</td>
+                    <td data-label="Contact"><a href="tel:(416) 588-6288">(416) 588-6288</a></td>
+                    <td data-label="Hours">Online</td>
+                    <td data-label="Address">2340 Dundas Street West</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Latin American Community Centre</td>
+                    <td data-label="Services">Open Food Bank</td>
+                    <td data-label="Contact"><a href="tel:(416) 785-8729">(416) 785-8729</a></td>
+                    <td data-label="Hours">Tuesdays 1:00-4:00</td>
+                    <td data-label="Address">22 Wenderly Dr</td>
+
+                </tr>
+                <tr>
+                    <td data-label="Name">Abrigo Centre</td>
+                    <td data-label="Services"><strong>Women</strong> - crisis and counselling services for a woman experienced domestic or family violence; <strong>Adults</strong>- information, referral, advocacy, settlement and support services (access financial supports); <strong>Youth</strong> - counselling for youth dealing with abuse; Parenting groups on hold, individual parenting support available; <strong>Partner Abuse Program</strong> limited services by phone; <strong>Seniors</strong> - settlement services and safety check ins</td>
+                    <td data-label="Contact"><a href="tel:(416) 534-3434">(416) 534-3434</a></td>
+                    <td data-label="Hours">Call for Particular Programs</td>
+                    <td data-label="Address">1645 Dufferin St</td>
+
+                </tr>
+            </tbody>
+        </table>
+
+        <script>
+            function myFunction() {
+                var $rows = $('#myTable tr');
+                $('#myInput').keyup(function() {
+                    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+                    $rows.show().filter(function() {
+                        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                        return !~text.indexOf(val);
+                    }).hide();
+                });
+            }
+
+        </script>
+
+
+
+
+</body>
+<footer class="footer">
+    <div class="center">
+        <div id="social-test">
+            <ul class="social">
+                <li><a href="https://www.facebook.com/HonAhmedHussen/"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                <li><a href="https://twitter.com/HonAhmedHussen"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+                <li><a href="https://www.instagram.com/ahmeddhussen/"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                <li><a href="https://www.youtube.com/watch?v=o9EXoKb7el4"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+<style type="text/css">
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans:400);
+
+    * {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .footer {
+        background: ;
+        width: 100%;
+        margin: 0;
+        max-height: 100px;
+        clear: both;
+        padding-top: 20px;
+        position: relative;
+        margin-top: -1em;
+    }
+
+    .center {
+        display: table;
+        width: 100%;
+    }
+
+    #social-test {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 30px;
+        margin: 20px;
+    }
+
+    .social {
+        padding-left: 0px;
+    }
+
+    li {
+        display: inline-block;
+    }
+
+    li a {
+        color: #414042;
+        list-style-type: none;
+        display: inline-block;
+        width: auto;
+        height: auto;
+        line-height: 10px;
+        padding: 1%;
+        cursor: pointer;
+        margin-left: 0px;
+        margin-bottom: 10px;
+        transition: ease .3s;
+
+        &:hover {
+            color: rgba(256, 256, 256, 1);
+            border: 1px solid rgba(256, 256, 256, 1);
+        }
+    }
+    }
+
+    .social:hover>li {
+        opacity: 0.5;
+    }
+
+    .social:hover>li:hover {
+        opacity: 1;
+    }
+
+    .credits,
+    .credits a {
+        font-size: 20px;
+        font-family: Open Sans;
+        color: rgba(256, 256, 256, 0.6);
+    }
+
+</style>
+<script>
+    $(document).ready(function() {
+        setInterval(function() {
+            var docHeight = $(window).height();
+            var footerHeight = $('#footer').height();
+            var footerTop = $('#footer').position().top + footerHeight;
+            var marginTop = (docHeight - footerTop + 10);
+
+            if (footerTop < docHeight)
+                $('#footer').css('margin-top', marginTop + 'px'); // padding of 30 on footer
+            else
+                $('#footer').css('margin-top', '0px');
+            // console.log("docheight: " + docHeight + "\n" + "footerheight: " + footerHeight + "\n" + "footertop: " + footerTop + "\n" + "new docheight: " + $(window).height() + "\n" + "margintop: " + marginTop);
+        }, 250);
+    });
+
+</script>
+
+
+
+
+</html>
