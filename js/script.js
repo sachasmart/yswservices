@@ -231,20 +231,20 @@ $().UItoTop({ easingType: 'easeOutQuart' });
 //--------------------------------- Mobile menu --------------------------------//
 
 
-var fade=false;
-$('.mobileBtn').click(function() {
-		if(fade==false){
-        	$('#mainNav ul').fadeIn("slow");
-			fade=true;
-			return false;
+// var fade=false;
+// $('.mobileBtn').click(function() {
+// 		if(fade==false){
+//         	$('#mainNav ul').fadeIn("slow");
+// 			fade=true;
+// 			return false;
 			
-		}else{
+// 		}else{
 		
-			$('#mainNav ul').fadeOut("faste");
-			fade=false;
-			return false;	
-		}
-});
+// 			$('#mainNav ul').fadeOut("faste");
+// 			fade=false;
+// 			return false;	
+// 		}
+// });
 
 
 //--------------------------------- End mobile menu --------------------------------//
